@@ -1,5 +1,7 @@
 package entityPackage;
 
+import entityPackage.entities.Cat;
+
 public class MyJava {
     // Переменные, которые открыты для дочерних классов
     public static int n1 = 5;
@@ -11,10 +13,10 @@ public class MyJava {
     private static double d1 = 123.456;
     private static String str3 = "another string";
 
-    // Классы-оболочкек
-    public static Integer inter_ob;
-    private static Boolean bln_ob;
-    protected static Long lng_ob;
+    // Классы-оболочек
+    public static Integer interOb;
+    private static Boolean blnOb;
+    protected static Long lngOb;
 
     public static void main(String[] args) {
         System.out.println("\n\tHello\n\t\tworld!\n");
@@ -32,14 +34,50 @@ public class MyJava {
         System.out.println("Вывод глобальных переменных private: " + MyJava.d1 + ", " + MyJava.str3);
 
         // Использование классов-оболочек (упаковка)
-        MyJava.inter_ob = num;
-        MyJava.bln_ob = bool;
-        MyJava.lng_ob = number;
+        MyJava.interOb = num;
+        MyJava.blnOb = bool;
+        MyJava.lngOb = number;
 
         // Использование классов-оболочек (распаковка)
-        int num2 = MyJava.inter_ob;
-        boolean bool2 = MyJava.bln_ob;
-        long number2 = MyJava.lng_ob;
+        int num2 = MyJava.interOb;
+        boolean bool2 = MyJava.blnOb;
+        long number2 = MyJava.lngOb;
         System.out.println("\nВывод переменных: " + num2 + ", " + bool2 + ", " + number2);
+
+        // ===============================================================================
+        //Создаём наших котов
+        Cat[] cats = new Cat[3];
+        // Поле private позволяет себя заполнить
+        Cat c1 = new Cat(1, "Боб", 5, "Чёрный", "Розовый");
+        cats[0] = c1;
+        Cat c2 = new Cat(2, "Старый", "Серый");
+        cats[1] = c2;
+        Cat c3 = new Cat(3, "Трёхцветный");
+        cats[2] = c3;
+
+        System.out.println("\nИнформация о котах:\n");
+        for (int i = 0; i < cats.length; i++) {
+            cats[i].infoCat();
+            // System.out.println("Zalupka: " + с1.zalupka); // Поле private не позволяет себя вывести внутри другого класса
+        }
+
+        // Изменяем поля
+        c1.name = "Марли";
+        c1.age = 6;
+        c3.name = "Брошенка";
+        // c1.zalupka = "Красный";  // Поле private не даёт себя переназначить
+        System.out.println("Изменили информацию о котах:\n");
+        c1.infoCat();
+        c3.infoCat();
+
+        // Приравниваем двух котов
+        System.out.println("Приравниваем двух котов и выводим нового:");
+        Cat c4 = new Cat(4, "Рыжий");
+        // с4 = c1; // Объекты не дают себя приравнять таким образом
+        Cat c5 = c1;          // Объекты приравниваются полностью, даже поле private
+        c5.id = 5;            // Подобным приравниванием мы делаем как бы указатель на c1, и при изменении поля в c5
+        c5.name = "Бездатый"; // Оно так же изменится в c1
+        c5.infoCat();
+        c1.infoCat();
     }
 }
