@@ -1,2 +1,6 @@
+entityPackage\entities\Player.class
+entityPackage\entities\Team.class
 entityPackage\MyJava.class
 entityPackage\entities\TestIt.class
+entityPackage\entities\Cat.class
+entityPackage\MyJava2.class
