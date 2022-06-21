@@ -12,4 +12,12 @@ public class Player {
         this.adr = adr;
         this.stability = stability;
     }
+
+    // Информация об игроке
+    public void infoPlayer() {
+        System.out.println("\tИдентификатор: " + id);
+        System.out.println("\tКиллы к смертям: " + kd);
+        System.out.println("\tКол-во урона за раунд: " + adr);
+        System.out.println("\tСтабильность: " + stability + "\n");
+    }
 }

@@ -3,9 +3,7 @@ package entityPackage;
 import entityPackage.entities.Player;
 import entityPackage.entities.Team;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Scanner;
+import java.util.*;
 
 public class MyJava2 {
 
@@ -14,10 +12,11 @@ public class MyJava2 {
     public static void main(String[] args) {
 
         // ѕотом € это уберу
-        Scanner in = new Scanner(System.in);
+        /*Scanner in = new Scanner(System.in);
         System.out.print("¬ведите количество игроков: ");
         int play = in.nextInt();
-        in.close();
+        in.close();*/
+        int play = 10;
 
         List<Player> plsFor = new ArrayList<>();
         for (int i = 0; i < play; i++) {
@@ -29,13 +28,80 @@ public class MyJava2 {
         plsRec = recFunc(plsRec, play);
         System.out.println("–азмер листа в Rec: " + plsRec.size());
 
+        // ѕримерно то, что € хотел, но не создать лист с зарезервированным количеством элементов,
+        // поэтому здесь присутствует побочный нулевой массив (заодно попробовал фильтр :) )
+        Player[] pl = new Player[play];
         List<Player> plsStr = new ArrayList<>();
-
+        Arrays.stream(pl).filter(el -> el == null).forEach(obj -> plsStr.add(new Player(0, 0, 0, 0)));
         System.out.println("–азмер листа в Str: " + plsStr.size());
+        pl = null;
 
         Team t1 = new Team(plsFor);
         Team t2 = new Team(plsRec);
         Team t3 = new Team(plsStr);
+
+        // ========================================================
+        int pls = 20; //  оличество игроков
+        int tms = 4; //  оличество команд
+        List<Player> playersList = new ArrayList<>();
+        for (int i = 1; i <= pls; i++) {
+            playersList.add(new Player(i, randomFloat(0.1f, 2), randomFloat(40, 120), randomFloat(0.6f, 1)));
+        }
+
+        // ѕон€тное дело, что € это не использовал дл€ 2000 игроков
+        System.out.println("ѕосмотрим, что вышло:\n");
+        for (Player l : playersList) {
+            l.infoPlayer();
+        }
+
+        // ѕервый способ, который пришЄл на ум.
+        // –андомно забираю игрока из списка игроков и засовываю его в список с командой, удал€€ его из списка игроков.
+        //  огда в команде набираетс€ 5 человек, то засовываю эту команду в объект Team, затем чищу список с командой.
+        /*List<Team> teamsList = new ArrayList<>();
+        List<Player> teamOne = new ArrayList<>();
+        int j = 0;
+        for (int i = pls; i > 0; i--) {
+            Random ri = new Random();
+            int n = ri.nextInt(i);
+            teamOne.add(playersList.get(n));
+            playersList.remove(n);
+            if (teamOne.size()== 5) {
+                teamsList.add(new Team(teamOne));
+                teamOne.clear();
+            }
+        }
+        // —пособ не увенчалс€ успехом, так как € удал€ю содержимое списка, где хранились игроки и данные стираютс€
+
+        System.out.println("—оставы команд:\n");
+        for (int i = 0; i < teamsList.size(); i++) {
+            System.out.print((i + 1) + ". ");
+            teamsList.get(i).infoTeamId();
+            System.out.println();
+        }*/
+
+        // »де€ второго способа: перебираетс€ список с игроками в рандомном пор€дке, когда рандомных игроков в конце
+        // списка достаточно дл€ формировани€ команды, то они засовываютс€ в объект Team через subList, но по€вл€етс€
+        // непон€тна€ мне ошибка
+        /*List<Team> teamsList = new ArrayList<>();
+        for (int i = pls, j = 0; i > 0; i--, j++) {
+            Random ri = new Random();
+            int n = ri.nextInt(i);
+            playersList.add(playersList.get(n));
+            playersList.remove(n);
+            if (j == (pls / tms)) {
+                teamsList.add(new Team(playersList.subList(pls - j, pls - 1)));
+                j = 0;
+            }
+        }*/
+
+        // Ёто просто тест вывода id игроков в команде
+        List<Player> test = new ArrayList<>();
+        test.add(new Player(1, 2, 3, 4));
+        test.add(new Player(2, 3, 4, 5));
+        Team tst = new Team(test);
+        System.out.print("—оставы команды: ");
+        tst.infoTeamId();
+        System.out.println();
     }
 
     public static List<Player> recFunc(List<Player> lst, int i) {
@@ -45,5 +111,12 @@ public class MyJava2 {
         } else {
             return lst;
         }
+    }
+
+    public static float randomFloat(float min, float max) {
+        //float rd = (float) (Math.random() * ((max - min) + 1)) + min;
+        //float rd = min + (float) (Math.random() * max);
+        Random rd = new Random();
+        return rd.nextFloat(max - min) + min;
     }
 }

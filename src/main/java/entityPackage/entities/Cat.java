@@ -56,14 +56,12 @@ public class Cat {
     }
 
     // Метод для изменения поля private zalupka
-    public Cat changeZpInfo(Cat cn, String zp) {
-        cn.zalupka = zp;
-        return cn;
+    public void changeZpInfo(String zp) {
+        this.zalupka = zp;
     }
 
-    public Cat changeHomeInfo(Cat cn, String home) {
-        cn.home = home;
-        return cn;
+    public void changeHomeInfo(String home) {
+        this.home = home;
     }
 
     public Cat catStr(Cat cn, String[] mass) {
