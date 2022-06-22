@@ -2,6 +2,7 @@ package entityPackage;
 
 import entityPackage.entities.Player;
 import entityPackage.entities.Team;
+import entityPackage.entitiesCreate.CreatePlayers;
 
 import java.util.*;
 
@@ -45,7 +46,8 @@ public class MyJava2 {
         int tms = 4; // Количество команд
         List<Player> playersList = new ArrayList<>();
         for (int i = 1; i <= pls; i++) {
-            playersList.add(new Player(i, randomFloat(0.1f, 2), randomFloat(40, 120), randomFloat(0.6f, 1)));
+            Random rand = new Random();
+            playersList.add(new Player(i, rand.nextFloat(0.1f, 2), rand.nextFloat(40, 120), rand.nextFloat(0.6f, 1)));
         }
 
         // Понятное дело, что я это не использовал для 2000 игроков
@@ -54,54 +56,41 @@ public class MyJava2 {
             l.infoPlayer();
         }
 
-        // Первый способ, который пришёл на ум.
-        // Рандомно забираю игрока из списка игроков и засовываю его в список с командой, удаляя его из списка игроков.
-        // Когда в команде набирается 5 человек, то засовываю эту команду в объект Team, затем чищу список с командой.
-        /*List<Team> teamsList = new ArrayList<>();
-        List<Player> teamOne = new ArrayList<>();
-        int j = 0;
-        for (int i = pls; i > 0; i--) {
-            Random ri = new Random();
-            int n = ri.nextInt(i);
-            teamOne.add(playersList.get(n));
-            playersList.remove(n);
-            if (teamOne.size()== 5) {
-                teamsList.add(new Team(teamOne));
-                teamOne.clear();
-            }
+        // Разбиение на команды, используя subList, где j - это количество человек в команде
+        List<Team> teamsList = new ArrayList<>();
+        Collections.shuffle(playersList);
+        for (int i = 0, j = pls / tms; i < pls; i += j) {
+            teamsList.add(new Team(playersList.subList(i, i + j)));
         }
-        // Способ не увенчался успехом, так как я удаляю содержимое списка, где хранились игроки и данные стираются
 
-        System.out.println("Составы команд:\n");
+        System.out.println("Составы команд:");
         for (int i = 0; i < teamsList.size(); i++) {
             System.out.print((i + 1) + ". ");
             teamsList.get(i).infoTeamId();
             System.out.println();
-        }*/
+        }
 
-        // Идея второго способа: перебирается список с игроками в рандомном порядке, когда рандомных игроков в конце
-        // списка достаточно для формирования команды, то они засовываются в объект Team через subList, но появляется
-        // непонятная мне ошибка
-        /*List<Team> teamsList = new ArrayList<>();
-        for (int i = pls, j = 0; i > 0; i--, j++) {
-            Random ri = new Random();
-            int n = ri.nextInt(i);
-            playersList.add(playersList.get(n));
-            playersList.remove(n);
-            if (j == (pls / tms)) {
-                teamsList.add(new Team(playersList.subList(pls - j, pls - 1)));
-                j = 0;
-            }
-        }*/
+        // Тест нового класса с созданием игроков
+        CreatePlayers lst = new CreatePlayers();
+        lst.createPlayersFor(10);
+        lst.createPlayersRec(10);
+        lst.createPlayersStream(10);
+        CreatePlayers plsRand = new CreatePlayers();
+        plsRand.createPlayersRandom(10);
+        //System.out.println("Созданные игроки:");
+        //plsRand.infoPlayer();
+        // =======================================
 
-        // Это просто тест вывода id игроков в команде
-        List<Player> test = new ArrayList<>();
-        test.add(new Player(1, 2, 3, 4));
-        test.add(new Player(2, 3, 4, 5));
-        Team tst = new Team(test);
-        System.out.print("Составы команды: ");
-        tst.infoTeamId();
-        System.out.println();
+        System.out.println("\nРассчитаем силу игроков на данный момент (с учётом стабильности): ");
+        for (Player l : playersList) {
+            System.out.println("Сила игрока " + l.id + " = " + l.playerPower());
+        }
+
+        System.out.println("\nРассчитаем силу команд на данный момент (с учётом стабильности): ");
+        for (int i = 0; i < teamsList.size(); i++) {
+            System.out.print((i + 1) + ". " + teamsList.get(i).teamPower());
+            System.out.println();
+        }
     }
 
     public static List<Player> recFunc(List<Player> lst, int i) {
@@ -111,12 +100,5 @@ public class MyJava2 {
         } else {
             return lst;
         }
-    }
-
-    public static float randomFloat(float min, float max) {
-        //float rd = (float) (Math.random() * ((max - min) + 1)) + min;
-        //float rd = min + (float) (Math.random() * max);
-        Random rd = new Random();
-        return rd.nextFloat(max - min) + min;
     }
 }
