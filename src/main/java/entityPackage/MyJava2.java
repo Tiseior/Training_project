@@ -1,7 +1,9 @@
 package entityPackage;
 
+import entityPackage.entities.AbstractObject;
 import entityPackage.entities.Player;
 import entityPackage.entities.Team;
+import entityPackage.entitiesCreate.CreateAbstractObject;
 import entityPackage.entitiesCreate.CreatePlayers;
 
 import java.util.*;
@@ -122,6 +124,8 @@ public class MyJava2 {
         }
         System.out.println("Победитель - команда " + teamsList.get(0).id);
 
+        CreateAbstractObject createAbstractObject = new CreateAbstractObject();
+        List<AbstractObject> list = createAbstractObject.createListOfAbstractObjects();
         // Влияние стабильности игроков на силу команды
         /*System.out.println("Исследуется команда победитель");
         for (int i = 1; i <= 20; i++) {
