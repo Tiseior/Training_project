@@ -7,6 +7,7 @@ import entityPackage.entitiesCreate.CreateAbstractObject;
 import entityPackage.entitiesCreate.CreatePlayers;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class MyJava2 {
 
@@ -126,6 +127,7 @@ public class MyJava2 {
 
         CreateAbstractObject createAbstractObject = new CreateAbstractObject();
         List<AbstractObject> list = createAbstractObject.createListOfAbstractObjects();
+        List<AbstractObject> filteredList = list.stream().filter(e -> e.id != 1).toList();
         // Влияние стабильности игроков на силу команды
         /*System.out.println("Исследуется команда победитель");
         for (int i = 1; i <= 20; i++) {
