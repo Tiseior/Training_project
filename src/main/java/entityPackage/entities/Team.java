@@ -12,21 +12,21 @@ public class Team {
     }
 
     public float teamPower() {
-        float pw = 0;
+        float power = 0;
         for (int i = 0; i < listPlayer.size(); i++) {
-            pw += listPlayer.get(i).playerPower();
+            power += listPlayer.get(i).playerPower();
         }
-        return pw;
+        return power;
     }
 
     public float teamPowerNoStability() {
-        float pw = 0;
+        float power = 0;
         final float AVG_KD = 0.95f;
         final float AVG_ADR = 74;
         for (int i = 0; i < listPlayer.size(); i++) {
-            pw += (listPlayer.get(i).kd / AVG_KD * 50) + (listPlayer.get(i).adr / AVG_ADR * 50);
+            power += (listPlayer.get(i).kd / AVG_KD * 50) + (listPlayer.get(i).adr / AVG_ADR * 50);
         }
-        return pw;
+        return power;
     }
 
     public void infoTeamId() {

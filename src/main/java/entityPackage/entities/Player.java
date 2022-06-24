@@ -20,11 +20,11 @@ public class Player {
 
     public float playerPower() {
         Random st = new Random();
-        float pw = (kd / AVG_KD * 50) + (adr / AVG_ADR * 50);
+        float power = (kd / AVG_KD * 50) + (adr / AVG_ADR * 50);
         if (st.nextFloat(0, 1) > stability) {
-            pw /= 2;
+            power /= 2;
         }
-        return pw;
+        return power;
     }
 
     // Информация об игроке

@@ -1,13 +1,10 @@
 package entityPackage;
 
-import entityPackage.entities.AbstractObject;
 import entityPackage.entities.Player;
 import entityPackage.entities.Team;
-import entityPackage.entitiesCreate.CreateAbstractObject;
-import entityPackage.entitiesCreate.CreatePlayers;
+import entityPackage.entitiesCreate.playoffCalculating;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 public class MyJava2 {
 
@@ -45,11 +42,11 @@ public class MyJava2 {
         Team t3 = new Team(plsStr, 3);
 
         // ========================================================
-        int pls = 2000; // Количество игроков
-        int tms = 400; // Количество команд                                     // !!!!!
+        int playerCount = 160; // Количество игроков
+        int teamCount = 32; // Количество команд                                     // !!!!!
 
         List<Player> playersList = new ArrayList<>();
-        for (int i = 1; i <= pls; i++) {
+        for (int i = 1; i <= playerCount; i++) {
             Random rand = new Random();
             playersList.add(new Player(i, rand.nextFloat(0.1f, 2), rand.nextFloat(40, 120), rand.nextFloat(0.6f, 1)));
         }
@@ -63,7 +60,7 @@ public class MyJava2 {
         // Разбиение на команды, используя subList, где j - это количество человек в команде
         List<Team> teamsList = new ArrayList<>();
         Collections.shuffle(playersList);
-        for (int i = 0, j = pls / tms, ind = 1; i < pls; i += j, ind++) {
+        for (int i = 0, j = playerCount / teamCount, ind = 1; i < playerCount; i += j, ind++) {
             teamsList.add(new Team(playersList.subList(i, i + j), ind));
         }
 
@@ -73,15 +70,6 @@ public class MyJava2 {
             System.out.println();
         }*/
 
-        // Тест нового класса с созданием игроков
-        CreatePlayers lst = new CreatePlayers();
-        lst.createPlayersFor(10);
-        lst.createPlayersRec(10);
-        lst.createPlayersStream(10);
-        CreatePlayers plsRand = new CreatePlayers();
-        plsRand.createPlayersRandom(10);
-        //System.out.println("Созданные игроки:");
-        //plsRand.infoPlayer();
         // =======================================
 
         /*System.out.println("\nРассчитаем силу игроков на данный момент (с учётом стабильности): ");
@@ -111,7 +99,7 @@ public class MyJava2 {
             float pw1 = teamsList.get(0).teamPower();
             float pw2 = teamsList.get(1).teamPower();
             System.out.println("Команда " + teamsList.get(0).id + " (Сила " + pw1 + ") vs Команда "
-                               + teamsList.get(1).id + " (Сила " + pw2 + ")");
+                    + teamsList.get(1).id + " (Сила " + pw2 + ")");
             if (pw1 > pw2) {
                 System.out.println("Победила команда " + teamsList.get(0).id);
                 teamsList.add(teamsList.get(0));
@@ -125,9 +113,20 @@ public class MyJava2 {
         }
         System.out.println("Победитель - команда " + teamsList.get(0).id);
 
-        CreateAbstractObject createAbstractObject = new CreateAbstractObject();
-        List<AbstractObject> list = createAbstractObject.createListOfAbstractObjects();
-        List<AbstractObject> filteredList = list.stream().filter(e -> e.id != 1).toList();
+        // Это какой-то бред, но работает как имитация игры
+        System.out.println("\nТестирование нового класса\n");
+        playoffCalculating game = new playoffCalculating();
+        List<Player> pL = new ArrayList<>();
+        game.createPlayersRandom(pL, 20);
+        game.infoPlayers(pL);
+        List<Team> tL = new ArrayList<>();
+        game.createTeams(tL, pL, 4);
+        game.infoTeamsIdPlayers(tL);
+        game.maxPowerTeamNoStability(tL);
+        game.getExpectedWinner(tL);
+        System.out.println("Состав команды победителя\n");
+        tL.get(0).infoTeamId();
+        System.out.println("");
         // Влияние стабильности игроков на силу команды
         /*System.out.println("Исследуется команда победитель");
         for (int i = 1; i <= 20; i++) {
