@@ -2,6 +2,7 @@ package entityPackage;
 
 import entityPackage.entities.Player;
 import entityPackage.entities.Team;
+import entityPackage.entities.TeamList;
 import entityPackage.entitiesCreate.playoffCalculating;
 
 import java.util.*;
@@ -118,9 +119,15 @@ public class MyJava2 {
         playoffCalculating game = new playoffCalculating();
         List<Player> pL = new ArrayList<>();
         game.createPlayersRandom(pL, 20);
+        List<Player> playerList = game.createPlayersRandomly(20);
+        game.addRandomPlayersToList(playerList, 6);
+        List<Team> teamsTest = game.createTeamsByStandardCount(playerList);
         game.infoPlayers(pL);
         List<Team> tL = new ArrayList<>();
         game.createTeams(tL, pL, 4);
+        TeamList teamList = new TeamList();
+        teamList.teams = tL;
+        Team winner = teamList.getExpectedWinner();
         game.infoTeamsIdPlayers(tL);
         game.maxPowerTeamNoStability(tL);
         game.getExpectedWinner(tL);
