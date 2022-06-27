@@ -3,7 +3,7 @@ package entityPackage;
 import entityPackage.entities.Player;
 import entityPackage.entities.Team;
 import entityPackage.entities.TeamList;
-import entityPackage.entitiesCreate.playoffCalculating;
+import entityPackage.entitiesCreate.PlayoffCalculating;
 
 import java.util.*;
 
@@ -13,63 +13,49 @@ public class MyJava2 {
 
     public static void main(String[] args) {
 
-        // Потом я это уберу
+        // Ввод с клавиатуры
         /*Scanner in = new Scanner(System.in);
         System.out.print("Введите количество игроков: ");
         int play = in.nextInt();
         in.close();*/
-        int play = 10;
+        int players = 10;
 
-        List<Player> plsFor = new ArrayList<>();
-        for (int i = 0; i < play; i++) {
-            plsFor.add(new Player(0, 0, 0, 0));
-        }
-        System.out.println("Размер листа в For: " + plsFor.size());
+        System.out.println("\nТестирование нового класса\n");
+        long start, finish;
+        players = 8000;
+        PlayoffCalculating game = new PlayoffCalculating();
+        // Создание пустых игроков
+        start = System.nanoTime();
+        List<Player> playFor = game.createEmptyPlayersFor(players);
+        finish = System.nanoTime();
+        System.out.println("For создал " + playFor.size() + " игроков за " + (finish - start) + " нс");
+        List<Player> playRec = new ArrayList<>();
+        start = System.nanoTime();
+        game.createEmptyPlayersRec(playRec, players); // Рекурсия валится на 9000 игроков
+        finish = System.nanoTime();
+        System.out.println("Рекурсия создала " + playRec.size() + " игроков за " + (finish - start) + " нс");
+        start = System.nanoTime();
+        List<Player> playStream = game.createEmptyPlayersStream(players);
+        finish = System.nanoTime();
+        System.out.println("Stream создал " + playStream.size() + " игроков за " + (finish - start) + " нс");
 
-        List<Player> plsRec = new ArrayList<>();
-        plsRec = recFunc(plsRec, play);
-        System.out.println("Размер листа в Rec: " + plsRec.size());
-
-        // Примерно то, что я хотел, но не создать лист с зарезервированным количеством элементов,
-        // поэтому здесь присутствует побочный нулевой массив (заодно попробовал фильтр :) )
-        Player[] pl = new Player[play];
-        List<Player> plsStr = new ArrayList<>();
-        Arrays.stream(pl).filter(el -> el == null).forEach(obj -> plsStr.add(new Player(0, 0, 0, 0)));
-        System.out.println("Размер листа в Str: " + plsStr.size());
-        pl = null;
-
-        Team t1 = new Team(plsFor, 1);
-        Team t2 = new Team(plsRec, 2);
-        Team t3 = new Team(plsStr, 3);
-
-        // ========================================================
-        int playerCount = 160; // Количество игроков
-        int teamCount = 32; // Количество команд                                     // !!!!!
-
-        List<Player> playersList = new ArrayList<>();
-        for (int i = 1; i <= playerCount; i++) {
-            Random rand = new Random();
-            playersList.add(new Player(i, rand.nextFloat(0.1f, 2), rand.nextFloat(40, 120), rand.nextFloat(0.6f, 1)));
-        }
-
-        // Понятное дело, что я это не использовал для 2000 игроков
-        /*System.out.println("Характеристики игроков:\n");
-        for (Player l : playersList) {
-            l.infoPlayer();
-        }*/
-
-        // Разбиение на команды, используя subList, где j - это количество человек в команде
-        List<Team> teamsList = new ArrayList<>();
-        Collections.shuffle(playersList);
-        for (int i = 0, j = playerCount / teamCount, ind = 1; i < playerCount; i += j, ind++) {
-            teamsList.add(new Team(playersList.subList(i, i + j), ind));
-        }
-
-        /*System.out.println("Составы команд:");
-        for (int i = 0; i < teamsList.size(); i++) {
-            teamsList.get(i).infoTeamId();
-            System.out.println();
-        }*/
+        players = 5;
+        // Работа с игроками
+        playFor.clear();
+        System.out.println("\nПустые игроки:\n");
+        playFor = game.createEmptyPlayersFor(players);
+        game.infoPlayers(playFor);
+        System.out.println("Заполненные игроки:\n");
+        game.fillPlayersStandardCharacteristics(playFor);
+        game.infoPlayers(playFor);
+        System.out.println("Добавим 5 игроков:\n");
+        game.addRandomPlayersToList(playFor, 5);
+        game.infoPlayers(playFor);
+        System.out.println("Удалим игроков с id 1, 3, 7:\n");
+        game.deletePlayer(playFor, 1);
+        game.deletePlayer(playFor, 3);
+        game.deletePlayer(playFor, 7);
+        game.infoPlayers(playFor);
 
         // =======================================
 
@@ -85,68 +71,16 @@ public class MyJava2 {
         }*/
 
         // =============================================================================
-        Collections.shuffle(teamsList);
-        System.out.print("\nСписок команд: ");
-        int mx = 0;
-        for (int i = 0; i < teamsList.size(); i++) {
-            System.out.print(teamsList.get(i).id + " ");
-            if (teamsList.get(i).teamPowerNoStability() > teamsList.get(mx).teamPowerNoStability()) {
-                mx = i;
-            }
-        }
-        System.out.println("\nПредполагаемый победитель - команда " + teamsList.get(mx).id);
-        System.out.println("\n\tНачинаем игру\n");
-        while (teamsList.size() > 1) {
-            float pw1 = teamsList.get(0).teamPower();
-            float pw2 = teamsList.get(1).teamPower();
-            System.out.println("Команда " + teamsList.get(0).id + " (Сила " + pw1 + ") vs Команда "
-                    + teamsList.get(1).id + " (Сила " + pw2 + ")");
-            if (pw1 > pw2) {
-                System.out.println("Победила команда " + teamsList.get(0).id);
-                teamsList.add(teamsList.get(0));
-            } else {
-                System.out.println("Победила команда " + teamsList.get(1).id);
-                teamsList.add(teamsList.get(1));
-            }
-            teamsList.remove(0);
-            teamsList.remove(0);
-            System.out.println("");
-        }
-        System.out.println("Победитель - команда " + teamsList.get(0).id);
 
-        // Это какой-то бред, но работает как имитация игры
-        System.out.println("\nТестирование нового класса\n");
-        playoffCalculating game = new playoffCalculating();
-        List<Player> pL = new ArrayList<>();
-        game.createPlayersRandom(pL, 20);
-        List<Player> playerList = game.createPlayersRandomly(20);
-        game.addRandomPlayersToList(playerList, 6);
-        List<Team> teamsTest = game.createTeamsByStandardCount(playerList);
-        game.infoPlayers(pL);
-        List<Team> tL = new ArrayList<>();
-        game.createTeams(tL, pL, 4);
-        TeamList teamList = new TeamList();
-        teamList.teams = tL;
-        Team winner = teamList.getExpectedWinner();
-        game.infoTeamsIdPlayers(tL);
-        game.maxPowerTeamNoStability(tL);
-        game.getExpectedWinner(tL);
-        System.out.println("Состав команды победителя\n");
-        tL.get(0).infoTeamId();
-        System.out.println("");
-        // Влияние стабильности игроков на силу команды
-        /*System.out.println("Исследуется команда победитель");
-        for (int i = 1; i <= 20; i++) {
-            System.out.println("Тест " + i + ", сила: " + teamsList.get(0).teamPower());
-        }*/
-    }
-
-    public static List<Player> recFunc(List<Player> lst, int i) {
-        if (i > 0) {
-            lst.add(new Player(0, 0, 0, 0));
-            return recFunc(lst, --i);
-        } else {
-            return lst;
-        }
+        // Создание игроков и команд
+        players = 20;
+        List<Player> playersList = game.createPlayersRandom(players);
+        System.out.println("Создано игроков: " + playersList.size());
+        List<Team> teamsList = game.createTeamsByStandardCount(playersList);
+        System.out.println("Составы команд:\n");
+        game.infoTeamsIdPlayers(teamsList);
+        game.maxPowerTeamNoStability(teamsList);
+        System.out.println("Игра начинается\n");
+        game.getExpectedWinner(teamsList);
     }
 }

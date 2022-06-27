@@ -8,9 +8,6 @@ public class Player {
     public float adr; //количество урона за раунд (от 40 до 120)
     public float stability; //от 0,6 до 1 (но как бы проценты)
 
-    final float AVG_KD = 0.95f;
-    final float AVG_ADR = 74;
-
     public Player(int id, float kd, float adr, float stability) {
         this.id = id;
         this.kd = kd;
@@ -20,7 +17,7 @@ public class Player {
 
     public float playerPower() {
         Random st = new Random();
-        float power = (kd / AVG_KD * 50) + (adr / AVG_ADR * 50);
+        float power = (kd / Config.avgKd * 50) + (adr / Config.avgAdr * 50);
         if (st.nextFloat(0, 1) > stability) {
             power /= 2;
         }

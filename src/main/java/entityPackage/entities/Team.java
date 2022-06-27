@@ -21,10 +21,8 @@ public class Team {
 
     public float teamPowerNoStability() {
         float power = 0;
-        final float AVG_KD = 0.95f;
-        final float AVG_ADR = 74;
         for (int i = 0; i < listPlayer.size(); i++) {
-            power += (listPlayer.get(i).kd / AVG_KD * 50) + (listPlayer.get(i).adr / AVG_ADR * 50);
+            power += (listPlayer.get(i).kd / Config.avgKd * 50) + (listPlayer.get(i).adr / Config.avgAdr * 50);
         }
         return power;
     }
