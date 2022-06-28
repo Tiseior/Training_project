@@ -22,6 +22,24 @@ public class MyJava3 {
         List<AbstractObject> filteredList = list.stream().filter(e -> e.id != 1).toList();
         watchListAbstractId(filteredList);
 
+        List<Integer> mappedList = list.stream().map(e -> {
+            return e.id;
+        }).toList(); // просто вывели все айдишники, но если нужно условие?
+
+        mappedList = list.stream().map(e -> {
+            if(e.abstractObjectList.size() != 0){
+                return e.id;
+            } else {
+                return null;
+            }
+        }).toList(); // посмотри по breakpoint`ам: получаем лист с null. Как обойти? Сначала отфильтровать по условию, затем отмаппить
+
+        mappedList = list.stream().filter(
+                filteredObject -> (filteredObject.abstractObjectList.size() != 0)
+        ).toList().stream().map(
+                mappedObject -> mappedObject.id
+        ).toList(); // теперь норм
+
         System.out.println("1. Объекты первого уровня у которых id - двузначное число: ");
         filteredList = list.stream().filter(e -> (e.id > 9 && e.id < 100)).toList();
         watchListAbstractId(filteredList);
