@@ -3,7 +3,8 @@ package entityPackage;
 import entityPackage.entities.AbstractObject;
 import entityPackage.entitiesCreate.CreateAbstractObject;
 
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class MyJava3 {
 
@@ -13,8 +14,8 @@ public class MyJava3 {
 
         CreateAbstractObject createAbstractObject = new CreateAbstractObject();
         List<AbstractObject> list = createAbstractObject.createListOfAbstractObjects();
-        System.out.println("Рассмотрим получившийся лист:\n");
-        watchListAbstract(list);
+        System.out.println("Рассмотрим получившийся лист:");
+        watchListAbstract(list, 0);
         System.out.println("Все id: ");
         watchListAbstractId(list);
         System.out.println("0. Объекты первого уровня у которых id не равен 1: ");
@@ -50,7 +51,7 @@ public class MyJava3 {
         watchListAbstractName(filteredList);
 
         System.out.println("6. Объекты первого уровня, содержащие в stringList объект 'two': ");
-        filteredList = list.stream().filter(e -> e.stringList.indexOf("two") != -1).toList();
+        filteredList = list.stream().filter(e -> e.stringList.contains("two")).toList();
         watchListAbstractName(filteredList);
 
         System.out.println("7. Объекты первого уровня, содержащие во вложенных экземплярах abstractObject name - 'mistake': ");
@@ -58,33 +59,43 @@ public class MyJava3 {
                 e.abstractObjectList.stream().filter(n -> n.name == "mistake").toList().size() != 0).toList();
         watchListAbstractName(filteredList);
 
-        System.out.println("8. Объекты первого уровня, у которых вложенность была бы равна трем (в абстракте лист абстрактов, в экземпляре листа тоже лист абстрактов)");
+        System.out.println("8. Объекты первого уровня, у которых вложенность была бы равна трем (в абстракте лист абстрактов, в экземпляре листа тоже лист абстрактов):");
         filteredList = list.stream().filter(e -> e.abstractObjectList.size() != 0 &&
                 e.abstractObjectList.stream().filter(n -> n.abstractObjectList.size() != 0).toList().size() != 0).toList();
         watchListAbstractName(filteredList);
+
+        System.out.println("+9. Отсортировать все объекты первого уровня по их id:");
+        filteredList = list.stream().sorted(Comparator.comparingInt(e -> e.id)).toList();
+        watchListAbstractId(filteredList);
+
+        System.out.println("+10. Вывести только уникальные id объектов первого уровня:");
+        Map<Integer, List<AbstractObject>> listMap = list.stream().collect(Collectors.groupingBy(AbstractObject::getId));
+        filteredList = list.stream().filter(e -> listMap.get(e.id).size() == 1).toList();
+        watchListAbstractId(filteredList);
+
+        System.out.println("+11. Вывести все id объектов первого уровня без повторений:");
+        Set<Integer> listSet = new HashSet<>();
+        filteredList = list.stream().filter(e -> listSet.add(e.id)).collect(Collectors.toSet()).stream().toList();
+        watchListAbstractId(filteredList);
     }
 
-    // Какой-то вывод абстрактных объектов, но он весьма кривой
-    public static void watchListAbstract(List<AbstractObject> list) {
+    public static void watchListAbstract(List<AbstractObject> list, int count) {
         for (AbstractObject lst : list) {
-            System.out.println("\tId: " + lst.id);
-            System.out.println("\tCount: " + lst.count);
-            System.out.println("\tName: " + lst.name);
-            System.out.println("\tStringList: ");
-            System.out.print("\t");
+            System.out.println("\n" + ("\t").repeat(count) + "Id: " + lst.id);
+            System.out.println(("\t").repeat(count) + "Count: " + lst.count);
+            System.out.println(("\t").repeat(count) + "Name: " + lst.name);
+            System.out.println(("\t").repeat(count) + "StringList: ");
+            System.out.print(("\t").repeat(count));
             for (String str : lst.stringList) {
-                System.out.println("\t" + str);
-                System.out.print("\t");
+                System.out.println(("\t").repeat(count + 1) + str);
+                System.out.print(("\t").repeat(count));
             }
             System.out.println("IsAlright: " + lst.isAlright);
-            System.out.println("\tAbstractObjectList: " + lst.abstractObjectList.size());
+            System.out.println(("\t").repeat(count) + "AbstractObjectList: " + lst.abstractObjectList.size());
             if (lst.abstractObjectList.size() != 0) {
-                System.out.println("");
-                watchListAbstract(lst.abstractObjectList);
-            } else {
-                System.out.println(" ");
+                watchListAbstract(lst.abstractObjectList, ++count);
+                --count;
             }
-            System.out.println("");
         }
     }
 

@@ -1,7 +1,12 @@
-entityPackage\entitiesCreate\CreatePlayers.class
 entityPackage\entities\TestIt.class
+entityPackage\entities\AbstractObject.class
 entityPackage\entities\Cat.class
+entityPackage\entitiesCreate\CreateAbstractObject.class
+entityPackage\MyJava3.class
 entityPackage\entities\Player.class
 entityPackage\entities\Team.class
+entityPackage\entities\TeamList.class
+entityPackage\entitiesCreate\PlayoffCalculating.class
+entityPackage\entities\Config.class
 entityPackage\MyJava.class
 entityPackage\MyJava2.class
