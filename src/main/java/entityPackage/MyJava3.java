@@ -16,29 +16,11 @@ public class MyJava3 {
         List<AbstractObject> list = createAbstractObject.createListOfAbstractObjects();
         System.out.println("Рассмотрим получившийся лист:");
         watchListAbstract(list, 0);
-        System.out.println("Все id: ");
+        System.out.println("\nВсе id: ");
         watchListAbstractId(list);
         System.out.println("0. Объекты первого уровня у которых id не равен 1: ");
         List<AbstractObject> filteredList = list.stream().filter(e -> e.id != 1).toList();
         watchListAbstractId(filteredList);
-
-        List<Integer> mappedList = list.stream().map(e -> {
-            return e.id;
-        }).toList(); // просто вывели все айдишники, но если нужно условие?
-
-        mappedList = list.stream().map(e -> {
-            if(e.abstractObjectList.size() != 0){
-                return e.id;
-            } else {
-                return null;
-            }
-        }).toList(); // посмотри по breakpoint`ам: получаем лист с null. Как обойти? Сначала отфильтровать по условию, затем отмаппить
-
-        mappedList = list.stream().filter(
-                filteredObject -> (filteredObject.abstractObjectList.size() != 0)
-        ).toList().stream().map(
-                mappedObject -> mappedObject.id
-        ).toList(); // теперь норм
 
         System.out.println("1. Объекты первого уровня у которых id - двузначное число: ");
         filteredList = list.stream().filter(e -> (e.id > 9 && e.id < 100)).toList();
@@ -53,7 +35,7 @@ public class MyJava3 {
         filteredList = list.stream().filter(e -> e.isAlright == false).toList();
         watchListAbstractName(filteredList);
 
-        System.out.println("4. Объекты первого уровня с непустым stringList, abstractObjectList: ");
+        System.out.println("4. Объекты первого уровня с непустым stringList, abstractObjectList:\n");
         System.out.println("\tНепустой stringList: ");
         filteredList = list.stream().filter(e -> e.stringList.size() != 0).toList();
         watchListAbstractName(filteredList);
@@ -95,6 +77,81 @@ public class MyJava3 {
         Set<Integer> listSet = new HashSet<>();
         filteredList = list.stream().filter(e -> listSet.add(e.id)).collect(Collectors.toSet()).stream().toList();
         watchListAbstractId(filteredList);
+        // =======================================================================================================
+
+        System.out.println("Задачи stream().map\n");
+        List<Integer> mappedList = list.stream().map(e -> {
+            return e.id;
+        }).toList(); // просто вывели все айдишники, но если нужно условие?
+
+        mappedList = list.stream().map(e -> {
+            if (e.id < 10) {
+                return e.id;
+            } else {
+                return null;
+            }
+        }).toList();  // Если нужно условие, то можно прописать if в {}
+        System.out.println("MappedList: " + mappedList);
+        /*mappedList = list.stream().filter(e -> e.id < 10).map(e -> {
+            return e.id;
+        }).toList();*/
+        mappedList = list.stream().filter(e -> e.id < 10).map(e -> e.id).toList();
+        System.out.println("New MappedList: " + mappedList + "\n");
+        // В начале я подумал, что это задание, а ты мне примеры показывал))
+
+        mappedList = list.stream().map(e -> {
+            if (e.abstractObjectList.size() != 0) {
+                return e.id;
+            } else {
+                return null;
+            }
+        }).toList(); // посмотри по breakpoint`ам: получаем лист с null. Как обойти? Сначала отфильтровать по условию, затем отмаппить
+
+        mappedList = list.stream().filter(
+                filteredObject -> (filteredObject.abstractObjectList.size() != 0)
+        ).toList().stream().map(
+                mappedObject -> mappedObject.id
+        ).toList(); // теперь норм
+        System.out.println("Твой норм способ MappedList: " + mappedList);
+        mappedList = list.stream().filter(filteredObject -> filteredObject.abstractObjectList.size() != 0).map(
+                mappedObject -> mappedObject.id).toList();
+        System.out.println("Мой норм способ MappedList: " + mappedList + "\n");
+        // Есть какая-то существенная разница?
+
+        System.out.println("1. Вывести все count объектов первого, второго, третьего уровней по отдельности и вместе:\n");
+        System.out.println("\tВсе count объектов первого уровня: ");
+        mappedList = list.stream().map(e -> e.count).toList();
+        System.out.println("\t" + mappedList + "\n");
+        System.out.println("\tВсе count объектов второго уровня: ");
+        mappedList = list.stream().filter(e -> e.abstractObjectList.size() != 0).flatMap(
+                el -> el.abstractObjectList.stream()).map(e -> e.count).toList();
+        System.out.println("\t" + mappedList + "\n");
+        System.out.println("\tВсе count объектов третьего уровня: ");
+        // В предыдущем разделе, в 8 задании, где тоже нужно было углубиться на третий уровень я проверял,
+        // есть ли вообще возможность куда-то углубиться, но тут решил убрать
+        mappedList = list.stream().filter(e -> e.abstractObjectList.stream().filter(
+                n -> n.abstractObjectList.size() != 0).toList().size() != 0).flatMap(
+                e -> e.abstractObjectList.stream().flatMap(n -> n.abstractObjectList.stream())).map(e -> e.count).toList();
+        System.out.println("\t" + mappedList + "\n");
+
+        System.out.println("2. Вывести все name, если id объекта больше 5. Для объектов первого уровня:");
+        List<String> mappedListString = list.stream().filter(e -> e.id > 5).map(el -> el.name).toList();
+        System.out.println("\t" + mappedListString + "\n");
+
+        System.out.println("3. Вывести все name второго уровня, если id объекта первого уровня меньше 10, а id второго уровня меньше 100:");
+        mappedListString = list.stream().filter(e -> e.id < 10).flatMap(
+                el -> el.abstractObjectList.stream()).filter(e -> e.id < 100).map(el -> el.name).toList();
+        System.out.println("\t" + mappedListString + "\n");
+
+        System.out.println("4. Вывести все isAlright для объектов второго уровня и подсчитать, чего больше - тру или фолс:");
+        List<Boolean> mappedListBool = list.stream().filter(e -> e.abstractObjectList.size() != 0).flatMap(
+                el -> el.abstractObjectList.stream()).map(e -> e.isAlright).toList();
+        System.out.println("\t" + mappedListBool + "\n");
+        if(mappedListBool.stream().filter(e -> e.booleanValue()).count() > mappedListBool.stream().filter(e -> !e.booleanValue()).count()){
+            System.out.println("Больше элементов true\n");
+        } else {
+            System.out.println("Больше элементов false\n");
+        }
     }
 
     public static void watchListAbstract(List<AbstractObject> list, int count) {

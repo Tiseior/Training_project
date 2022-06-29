@@ -126,6 +126,47 @@ public class PlayoffCalculating {
         System.out.println("Победитель - команда " + teams.get(0).id);
     }
 
+    // Уменьшить стабильность игроков
+    public void reduceStability(List<Player> playersList) {
+        for (Player player : playersList) {
+            player.stability -= 0.05f;
+            if (player.stability < 0.6f) {
+                player.stability = 0.6f;
+            }
+        }
+    }
+
+    // Увеличить стабильность игроков
+    public void increaseStability(List<Player> playersList) {
+        for (Player player : playersList) {
+            player.stability += 0.02f;
+            if (player.stability > 1f) {
+                player.stability = 1f;
+            }
+        }
+    }
+
+    // Перераспределение игроков в конце сезона
+    // Метод не дописан, так как возможна ситуация, что будут удаляться игроки из пустой команды
+    // Так же я не могу вывести id игроков в командах, это нужно исправлять
+    public void redistributionPlayers(List<Team> teamsList) {
+        Random id = new Random();
+        List<Player> players = new ArrayList<>();
+        for (int i = 0; i < Config.redistributePlayersCount; i++) {
+            int teamId = id.nextInt(0, teamsList.size() - 1);
+            System.out.println("Команда: " + teamId);
+            int playerId = id.nextInt(0, teamsList.get(teamId).listPlayer.size() - 1);
+            System.out.println("Игрок: " + playerId);
+            System.out.println("Тот самый игрок " + teamsList.get(teamId).listPlayer.get(playerId).id);
+            players.add(teamsList.get(teamId).listPlayer.get(playerId));
+            teamsList.get(teamId).listPlayer.remove(playerId);
+        }
+        //System.out.println("Команды без игроков\n");
+        //infoTeamsIdPlayers(teamsList);
+        System.out.println("Исключённые игроки\n");
+        infoPlayers(players);
+    }
+
     // Вывод характеристик всех игроков
     public void infoPlayers(List<Player> playersList) {
         for (int i = 0; i < playersList.size(); i++) {

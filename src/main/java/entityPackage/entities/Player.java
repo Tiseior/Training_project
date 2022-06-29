@@ -24,6 +24,16 @@ public class Player {
         return power;
     }
 
+    // Стоит ли закидывать расчёты силы в PlayoffCalculating?
+    public float playerHardPower() {
+        Random st = new Random();
+        float power = (kd / Config.avgKd * 50) + (adr / Config.avgAdr * 50);
+        if (st.nextFloat(0, 1) > stability) {
+            power = 0;
+        }
+        return power;
+    }
+
     // Информация об игроке
     public void infoPlayer() {
         System.out.println("\tИдентификатор: " + id);
