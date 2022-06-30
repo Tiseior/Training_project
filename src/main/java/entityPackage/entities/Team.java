@@ -19,6 +19,14 @@ public class Team {
         return power;
     }
 
+    public float teamPowerHard() {
+        float power = 0;
+        for (int i = 0; i < listPlayer.size(); i++) {
+            power += listPlayer.get(i).playerPowerHard();
+        }
+        return power;
+    }
+
     public float teamPowerNoStability() {
         float power = 0;
         for (int i = 0; i < listPlayer.size(); i++) {

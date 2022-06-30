@@ -5,6 +5,7 @@ import entityPackage.entities.Player;
 import entityPackage.entities.Team;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class PlayoffCalculating {
 
@@ -89,6 +90,9 @@ public class PlayoffCalculating {
         } catch (IndexOutOfBoundsException e) {
             //nothing
         }
+        teamsList.stream().forEach(e -> {
+            e.listPlayer.sort(Comparator.comparingInt(i -> i.id));
+        });
         return teamsList;
     }
 
@@ -147,24 +151,87 @@ public class PlayoffCalculating {
     }
 
     // Перераспределение игроков в конце сезона
-    // Метод не дописан, так как возможна ситуация, что будут удаляться игроки из пустой команды
-    // Так же я не могу вывести id игроков в командах, это нужно исправлять
+    // Один из способов перераспределения. Он сделан так, что я расформировываю все команды и засовываю игроков
+    // в один список. Потом рандомом переношу игроков в другой список, а в основном зануляю их.
+    // Встряхиваю побочный список и бегаю по основному, в поисках нулевых игроков, заменив их на игрока с индексом 0 из
+    // побочного списка, а затем удаляю его из побочного. В конце собираю новые команды, используя метод для построения
+    // команд без рандомирования списка игроков (возможно этот метод избыточен).
+    // Придумал ещё один способ, где рандомно выбирается номер команды и индекс игрока в этой команде. Игрок переносится
+    // в побочный список и удаляется из команды. Потом побочный список встряхивается, и пустые места заполняются игроками
+    // из него. Но возникла проблема с удалением игроков из списка с командами, поэтому сделал то, что сделал.
     public void redistributionPlayers(List<Team> teamsList) {
+        List<Player> players = teamsList.stream().flatMap(e -> e.listPlayer.stream()).collect(Collectors.toList());
         Random id = new Random();
-        List<Player> players = new ArrayList<>();
+        List<Player> redistributedPlayers = new ArrayList<>();
+        int playerId = 0;//id.nextInt(0, players.size() - 1);
+        Player zero = new Player(0, 0, 0, 0);
         for (int i = 0; i < Config.redistributePlayersCount; i++) {
-            int teamId = id.nextInt(0, teamsList.size() - 1);
-            System.out.println("Команда: " + teamId);
-            int playerId = id.nextInt(0, teamsList.get(teamId).listPlayer.size() - 1);
-            System.out.println("Игрок: " + playerId);
-            System.out.println("Тот самый игрок " + teamsList.get(teamId).listPlayer.get(playerId).id);
-            players.add(teamsList.get(teamId).listPlayer.get(playerId));
-            teamsList.get(teamId).listPlayer.remove(playerId);
+            while (players.get(playerId) == zero) {
+                playerId = id.nextInt(0, players.size() - 1);
+            }
+            redistributedPlayers.add(players.get(playerId));
+            players.set(playerId, zero);
         }
-        //System.out.println("Команды без игроков\n");
-        //infoTeamsIdPlayers(teamsList);
-        System.out.println("Исключённые игроки\n");
-        infoPlayers(players);
+        Collections.shuffle(redistributedPlayers);
+        for (int i = 0; i < Config.redistributePlayersCount; i++) {
+            playerId = players.indexOf(zero);
+            players.set(playerId, redistributedPlayers.get(0));
+            redistributedPlayers.remove(0);
+        }
+        teamsList = createTeamsByStandardCountNoRandom(players);
+        /*teamsList.stream().forEach(e -> {
+            e.listPlayer.sort(Comparator.comparingInt(i -> i.id));
+        });*/
+        //return teamsList; // Не знаю, стоит ли выводить этот список
+    }
+
+    // Создание команд без перемешивания списка с игроками
+    private List<Team> createTeamsByStandardCountNoRandom(List<Player> playersList) {
+        List<Team> teamsList = new ArrayList<>();
+        try {
+            for (int i = 0, ind = 1; i < playersList.size(); i += Config.standardSizeOfTeam, ind++) {
+                teamsList.add(new Team(playersList.subList(i, i + Config.standardSizeOfTeam), ind));
+            }
+        } catch (IndexOutOfBoundsException e) {
+            //nothing
+        }
+        return teamsList;
+    }
+
+    // Сложная игра для выявления победившей команды
+    public Team getExpectedWinnerHard(List<Team> teams) {
+        List<Team> teamsThisSeason = teams;
+        Collections.shuffle(teamsThisSeason);
+        while (teamsThisSeason.size() > 1) {
+            float pw1 = teamsThisSeason.get(0).teamPowerHard();
+            float pw2 = teamsThisSeason.get(1).teamPowerHard();
+            System.out.println("Команда " + teamsThisSeason.get(0).id + " (Сила " + pw1 + ") vs Команда "
+                    + teamsThisSeason.get(1).id + " (Сила " + pw2 + ")");
+            if (pw1 > pw2) {
+                System.out.println("Победила команда " + teamsThisSeason.get(0).id);
+                teamsThisSeason.add(teamsThisSeason.get(0));
+                if (teamsThisSeason.get(0).teamPowerNoStability() < teamsThisSeason.get(1).teamPowerNoStability()) {
+                    System.out.println("Команда " + teamsThisSeason.get(1).id + " штрафуется");
+                    System.out.println("Сила 1 " + teamsThisSeason.get(0).teamPowerNoStability() + " Сила 2 " + teamsThisSeason.get(1).teamPowerNoStability());
+                    reduceStability(teamsThisSeason.get(1).listPlayer);
+                    increaseStability(teamsThisSeason.get(0).listPlayer);
+                }
+            } else {
+                System.out.println("Победила команда " + teamsThisSeason.get(1).id);
+                teamsThisSeason.add(teamsThisSeason.get(1));
+                if (teamsThisSeason.get(0).teamPowerNoStability() > teamsThisSeason.get(1).teamPowerNoStability()) {
+                    System.out.println("Команда " + teamsThisSeason.get(0).id + " штрафуется");
+                    System.out.println("Сила 1 " + teamsThisSeason.get(0).teamPowerNoStability() + " Сила 2 " + teamsThisSeason.get(1).teamPowerNoStability());
+                    reduceStability(teamsThisSeason.get(0).listPlayer);
+                    increaseStability(teamsThisSeason.get(1).listPlayer);
+                }
+            }
+            teamsThisSeason.remove(0);
+            teamsThisSeason.remove(0);
+            System.out.println("");
+        }
+        System.out.println("Победитель этого сезона - команда " + teamsThisSeason.get(0).id);
+        return teamsThisSeason.get(0);
     }
 
     // Вывод характеристик всех игроков

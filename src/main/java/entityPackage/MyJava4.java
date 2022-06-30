@@ -15,7 +15,7 @@ public class MyJava4 {
 
     public static void main(String[] args) {
 
-        int players = 10;
+        int players = 20;
         PlayoffCalculating game = new PlayoffCalculating();
         List<Player> playersList = game.createPlayersRandom(players);
         game.infoPlayers(playersList);
@@ -29,18 +29,38 @@ public class MyJava4 {
         game.infoTeamsIdPlayers(teamsList);
 
         System.out.println("Характеристики игроков команды 1\n");
-        //game.infoPlayers(teamsList.get(0).listPlayer);
+        game.infoPlayers(teamsList.get(0).listPlayer);
         System.out.println("Уменьшили стабильность\n");
         game.reduceStability(teamsList.get(0).listPlayer);
-        //game.infoPlayers(teamsList.get(0).listPlayer);
+        game.infoPlayers(teamsList.get(0).listPlayer);
 
         System.out.println("Характеристики игроков команды 2\n");
         game.infoPlayers(teamsList.get(1).listPlayer);
         System.out.println("Увеличили стабильность\n");
         game.increaseStability(teamsList.get(1).listPlayer);
         game.infoPlayers(teamsList.get(1).listPlayer);
+
+        System.out.println("Старый состав команд:\n");
+        game.infoTeamsIdPlayers(teamsList);
+        System.out.println("\nНовый состав команд:\n");
         game.redistributionPlayers(teamsList);
-        System.out.println("Команда без игроков\n");
-        //game.infoTeamsIdPlayers(teamsList);
+        game.infoTeamsIdPlayers(teamsList);
+
+        playersList.clear();
+        teamsList.clear();
+        players = 20;
+        System.out.println("\nНачнём усложнённую игру\n");
+        List<Team> winners = new ArrayList<>();
+        playersList = game.createPlayersRandom(players);
+        teamsList = game.createTeamsByStandardCount(playersList);
+        System.out.println("Состав команд:\n");
+        game.infoTeamsIdPlayers(teamsList);
+        System.out.println("\nПервый сезон\n");
+        winners.add(game.getExpectedWinnerHard(teamsList));
+        System.out.println("Изменяем состав команд\n");
+        game.redistributionPlayers(teamsList);  // Тут программа останавливается
+        game.infoTeamsIdPlayers(teamsList);
+        System.out.println("\nВторой сезон\n");
+        winners.add(game.getExpectedWinnerHard(teamsList));
     }
 }

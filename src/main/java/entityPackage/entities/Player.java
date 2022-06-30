@@ -25,7 +25,7 @@ public class Player {
     }
 
     // Стоит ли закидывать расчёты силы в PlayoffCalculating?
-    public float playerHardPower() {
+    public float playerPowerHard() {
         Random st = new Random();
         float power = (kd / Config.avgKd * 50) + (adr / Config.avgAdr * 50);
         if (st.nextFloat(0, 1) > stability) {
