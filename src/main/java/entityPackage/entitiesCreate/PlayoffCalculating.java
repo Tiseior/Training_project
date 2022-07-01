@@ -159,11 +159,12 @@ public class PlayoffCalculating {
     // Придумал ещё один способ, где рандомно выбирается номер команды и индекс игрока в этой команде. Игрок переносится
     // в побочный список и удаляется из команды. Потом побочный список встряхивается, и пустые места заполняются игроками
     // из него. Но возникла проблема с удалением игроков из списка с командами, поэтому сделал то, что сделал.
-    public void redistributionPlayers(List<Team> teamsList) {
+    public List<Team> redistributionPlayers(List<Team> teamsList) {
+        infoTeamsIdPlayers(teamsList);
         List<Player> players = teamsList.stream().flatMap(e -> e.listPlayer.stream()).collect(Collectors.toList());
         Random id = new Random();
         List<Player> redistributedPlayers = new ArrayList<>();
-        int playerId = 0;//id.nextInt(0, players.size() - 1);
+        int playerId = id.nextInt(0, players.size() - 1);
         Player zero = new Player(0, 0, 0, 0);
         for (int i = 0; i < Config.redistributePlayersCount; i++) {
             while (players.get(playerId) == zero) {
@@ -182,7 +183,38 @@ public class PlayoffCalculating {
         /*teamsList.stream().forEach(e -> {
             e.listPlayer.sort(Comparator.comparingInt(i -> i.id));
         });*/
-        //return teamsList; // Не знаю, стоит ли выводить этот список
+        return teamsList;
+    }
+
+    // Второй способ перераспределения игроков (его я решил создать, когда мучался с ошибкой). В самом начале
+    // команды так же расформировываются в список игроков, потом создаётся список с не повторяющимися рандомными
+    // индексами. Формируется список выбывающих игроков по этим индексам. Затем список с этими игроками перемешивается
+    // (можно перемешать список с индексами) и по списку с индексами определяются игроки, которые подлежат замене
+    // в основном списке. Ну и формируются новые команды.
+    public List<Team> redistributionPlayers2(List<Team> teamsList) {
+        List<Player> players = teamsList.stream().flatMap(e -> e.listPlayer.stream()).collect(Collectors.toList());
+        Random id = new Random();
+        List<Player> redistributedPlayers = new ArrayList<>();
+        List<Integer> playersId = new ArrayList<>();
+        int playerId;
+        for (int i = 0; i < Config.redistributePlayersCount; i++) {
+            do {
+                playerId = id.nextInt(0, players.size() - 1);
+            } while (playersId.contains(playerId));
+            playersId.add(playerId);
+        }
+        for (int i = 0; i < Config.redistributePlayersCount; i++) {
+            redistributedPlayers.add(players.get(playersId.get(i)));
+        }
+        Collections.shuffle(redistributedPlayers);
+        for (int i = 0; i < Config.redistributePlayersCount; i++) {
+            players.set(playersId.get(i), redistributedPlayers.get(i));
+        }
+        teamsList = createTeamsByStandardCountNoRandom(players);
+        /*teamsList.stream().forEach(e -> {
+            e.listPlayer.sort(Comparator.comparingInt(i -> i.id));
+        });*/
+        return teamsList;
     }
 
     // Создание команд без перемешивания списка с игроками
@@ -200,7 +232,8 @@ public class PlayoffCalculating {
 
     // Сложная игра для выявления победившей команды
     public Team getExpectedWinnerHard(List<Team> teams) {
-        List<Team> teamsThisSeason = teams;
+        List<Team> teamsThisSeason = new ArrayList<>();
+        teamsThisSeason.addAll(teams);
         Collections.shuffle(teamsThisSeason);
         while (teamsThisSeason.size() > 1) {
             float pw1 = teamsThisSeason.get(0).teamPowerHard();
@@ -212,7 +245,8 @@ public class PlayoffCalculating {
                 teamsThisSeason.add(teamsThisSeason.get(0));
                 if (teamsThisSeason.get(0).teamPowerNoStability() < teamsThisSeason.get(1).teamPowerNoStability()) {
                     System.out.println("Команда " + teamsThisSeason.get(1).id + " штрафуется");
-                    System.out.println("Сила 1 " + teamsThisSeason.get(0).teamPowerNoStability() + " Сила 2 " + teamsThisSeason.get(1).teamPowerNoStability());
+                    System.out.println("Сила " + teamsThisSeason.get(0).id + " = " + teamsThisSeason.get(0).teamPowerNoStability() +
+                            ", Сила " + teamsThisSeason.get(1).id + " = " + teamsThisSeason.get(1).teamPowerNoStability());
                     reduceStability(teamsThisSeason.get(1).listPlayer);
                     increaseStability(teamsThisSeason.get(0).listPlayer);
                 }
@@ -221,7 +255,8 @@ public class PlayoffCalculating {
                 teamsThisSeason.add(teamsThisSeason.get(1));
                 if (teamsThisSeason.get(0).teamPowerNoStability() > teamsThisSeason.get(1).teamPowerNoStability()) {
                     System.out.println("Команда " + teamsThisSeason.get(0).id + " штрафуется");
-                    System.out.println("Сила 1 " + teamsThisSeason.get(0).teamPowerNoStability() + " Сила 2 " + teamsThisSeason.get(1).teamPowerNoStability());
+                    System.out.println("Сила " + teamsThisSeason.get(0).id + " = " + teamsThisSeason.get(0).teamPowerNoStability() +
+                            ", Сила " + teamsThisSeason.get(1).id + " = " + teamsThisSeason.get(1).teamPowerNoStability());
                     reduceStability(teamsThisSeason.get(0).listPlayer);
                     increaseStability(teamsThisSeason.get(1).listPlayer);
                 }

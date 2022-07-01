@@ -1,13 +1,11 @@
 package entityPackage;
 
-import entityPackage.entities.Config;
 import entityPackage.entities.Player;
 import entityPackage.entities.Team;
 import entityPackage.entitiesCreate.PlayoffCalculating;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 
 public class MyJava4 {
 
@@ -15,7 +13,7 @@ public class MyJava4 {
 
     public static void main(String[] args) {
 
-        int players = 20;
+        int players = 32;
         PlayoffCalculating game = new PlayoffCalculating();
         List<Player> playersList = game.createPlayersRandom(players);
         game.infoPlayers(playersList);
@@ -43,24 +41,37 @@ public class MyJava4 {
         System.out.println("Старый состав команд:\n");
         game.infoTeamsIdPlayers(teamsList);
         System.out.println("\nНовый состав команд:\n");
-        game.redistributionPlayers(teamsList);
+        teamsList = game.redistributionPlayers(teamsList);
+        game.infoTeamsIdPlayers(teamsList);
+
+        System.out.println("Новый тест\n");
+        teamsList = game.redistributionPlayers2(teamsList);
         game.infoTeamsIdPlayers(teamsList);
 
         playersList.clear();
         teamsList.clear();
-        players = 20;
+        players = 80; // Количество игроков
+        int years = 2; // Количество лет
         System.out.println("\nНачнём усложнённую игру\n");
         List<Team> winners = new ArrayList<>();
         playersList = game.createPlayersRandom(players);
         teamsList = game.createTeamsByStandardCount(playersList);
-        System.out.println("Состав команд:\n");
-        game.infoTeamsIdPlayers(teamsList);
-        System.out.println("\nПервый сезон\n");
-        winners.add(game.getExpectedWinnerHard(teamsList));
-        System.out.println("Изменяем состав команд\n");
-        game.redistributionPlayers(teamsList);  // Тут программа останавливается
-        game.infoTeamsIdPlayers(teamsList);
-        System.out.println("\nВторой сезон\n");
-        winners.add(game.getExpectedWinnerHard(teamsList));
+        for (int i = 0; i < years; i++) {
+            System.out.println("\n\tГод " + (i+1) + "\n");
+            System.out.println("Составы команд:\n");
+            game.infoTeamsIdPlayers(teamsList);
+            System.out.println("\nСезон зима-весна-лето\n");
+            winners.add(game.getExpectedWinnerHard(teamsList));
+            System.out.println("\nИзменяем составы команд:\n");
+            teamsList = game.redistributionPlayers(teamsList);
+            game.infoTeamsIdPlayers(teamsList);
+            System.out.println("\nСезон лето-осень-зима\n");
+            winners.add(game.getExpectedWinnerHard(teamsList));
+            teamsList = game.redistributionPlayers2(teamsList);
+        }
+        System.out.println("\nСписок команд-победителей:");
+        for (Team team : winners) {
+            System.out.println("\tКоманда " + team.id);
+        }
     }
 }
